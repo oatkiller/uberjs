@@ -1,4 +1,106 @@
 (function () {
+	var getMethodName = function (callee,prototype) {
+						
+		// find the name of the method we are calling
+		for (var propertyName in prototype) {
+			if (prototype[propertyName] === callee) {
+				return propertyName;
+			}
+		}
+	};
+
+	Function.getUber = function (args) {
+
+		var methodName = getMethodName(args.callee,this.constructor.prototype);
+
+		// if we dont find it, throw an error
+		if (typeof methodName === 'undefined') {
+			throw new Error('couldn\'t find this method');
+		}
+
+		// look on this prototype
+		return (function (constructor) {
+			var prototype = constructor.prototype;
+
+			// if you find it
+			if (prototype.hasOwnProperty(methodName)) {
+				// get the next thing beneath it
+
+				// temporarily remove the method
+				delete prototype[methodName];
+
+				// look underneath
+				var superMethod = prototype[methodName];
+
+				// put the method back
+				prototype[methodName] = args.callee;
+
+				// is it defined?
+				if (typeof superMethod === 'undefined') {
+					// if not, throw an error
+					throw new Error('couldn\'t find a uber method by the name of: ' + methodName);
+				} else {
+					// if so, return it
+					return superMethod;
+				}
+			} else {
+				// if not, is there another prototype?
+				delete constructor.prototype.constructor;
+				var nextConstructor = constructor.prototype.constructor;
+				constructor.prototype.constructor = constructor;
+
+				if (typeof nextConstructor === 'undefined') {
+					// if constructor isnt defined, throw an error
+					throw new Error('couldn\'t navigate prototype using constructor property.');
+				} else if (constructor === Object) {
+					// if constructor is Object, throw an error
+					throw new Error('walked all the way back to Object without finding your method');
+				} else {
+					// if so, look there
+					return arguments.callee(nextConstructor);
+				}
+			}
+		})(this.constructor);
+	};
+})();
+
+Function.prototype.subclass = function (initializer) {
+	if (!('getUber' in this.prototype)) {
+		this.prototype.getUber = Function.getUber;
+	}
+
+	// get the passed constructor, or create a default one that just calls its uber
+	var constructor = 'constructor' in initializer && initializer.constructor !== Object ? initializer.constructor : function () {
+		this.getUber(arguments).apply(this,arguments);
+	};
+
+	// create a throw away function that will construct the new prototype
+	var PrototypeConstructor = function () {};
+
+	// set this prototype to the PrototypeConstructor's prototype so that the new prototype will inherit from this
+	PrototypeConstructor.prototype = this.prototype;
+
+	// create the new prototype
+	var prototype = new PrototypeConstructor();
+
+	// set the new prototype on the new constructor
+	constructor.prototype = prototype;
+
+	// set the new prototype's constructor to the new constructor. otherwise, it will point to this
+	prototype.constructor = constructor;
+
+	// copy properties to new constructor
+	for (var propertyName in initializer) {
+		// dont worry about ignoring constructor, if thats there. just rewrite it. doing that should be faster than doing a bunch of false ifs
+		prototype[propertyName] = initializer[propertyName];
+	}
+
+	// return the new fancy constructor
+	return constructor;
+};
+
+/*
+(function () {
 	// get a super method by its sub method
 	// argsOrMethod is a reference to arguments or arguments.callee
 	// requires prototype's to have a reference to their constructor and a reference to themselves as .prototype
@@ -9,7 +111,9 @@
 		var method = typeof argsOrMethod === 'function' ? argsOrMethod : argsOrMethod.callee;
 
 		// recurse the prototypal chain looking for the method that was called. return the next property in the chain by the same property name
-		return (function (prototype) {
+		return (function (constructor) {
+
+			var prototype = constructor.prototype;
 
 			// for each property in the prototype
 			for (var methodName in prototype) {
@@ -18,14 +122,16 @@
 				if (prototype[methodName] === method && prototype.hasOwnProperty(methodName)) {
 
 					// delete the circular reference from the prototype
-					delete prototype.prototype;
+					delete prototype.constructor;
 
 					// get a reference to the next property in the prototypal chain by the same property name
 					// prototype.prototype points to the next prototype in the chain because we just deleted the current prototype's circular reference, thereby revealing its internal prototype's circular reference
-					var superMethod = prototype.prototype[methodName];
+					var superMethod = prototype.constructor.prototype[methodName];
 
 					// restore the circular reference
-					prototype.prototype = prototype;
+					prototype.constructor = constructor;
+
+					// TODO throw an error is superMethod is undefined
 
 					// return whatever we found
 					return superMethod;
@@ -35,18 +141,18 @@
 			// we didnt find what we were looking for
 
 			// delete this prototype's circular reference
-			delete prototype.prototype;
+			delete prototype.constructor;
 
 			// get its parent prototype by its parents prototypes now revealed circular reference
-			var nextPrototype = prototype.prototype;
+			var nextConstructor = prototype.constructor;
 
 			// restore the circular reference
-			prototype.prototype = prototype;
+			prototype.constructor = constructor;
 
 			// if there was another prototype in our circular reference chain, call this method on that one, otherwise, return undefined
-			return nextPrototype ? arguments.callee(nextPrototype) : undefined;
+			return typeof nextConstructor === 'function' && nextConstructor !== Object ? arguments.callee(nextConstructor) : undefined;
 
-		})(this.prototype); // call the anon fn with this.prototype
+		})(this.constructor); // call the anon fn with this.constructor
 	},
 
 	// pass arguments and optionally an array of args
@@ -80,12 +186,7 @@
 		// set the prototype on the constructor
 		constructor.prototype = prototype;
 
-		// give the prototype a circular reference
-		// this is used to transverse the prototypal chain
-		prototype.prototype = prototype;
-
 		// give the prototype an explicit reference to its constructor
-		// this is used to identify constructors for the sake of allowing uber constructors
 		prototype.constructor = constructor;
 
 		// if uber isnt in the prototype chain, add it now
@@ -102,9 +203,6 @@
 
 			// set the superclass's prototype's constructor so that we can call it with this.uber from the constructor function
 			superclass.prototype.constructor = superclass;
-
-			// set the superclass's prototype's circular reference so that we can look for uber methods on it in our prototype transversing routine
-			superclass.prototype.prototype = superclass.prototype;
 		}
 
 		// return the constructor
@@ -150,3 +248,4 @@
 	};
 
 })();
+*/
