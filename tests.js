@@ -22,11 +22,13 @@ var suite = new Suite({
 	// extend extend
 	'extend works on a subclass' : function () {
 		var Uber = function () {
+			this.a = 'a';
 		};
 		var Sub = Uber.extend();
 		var SubSub = Sub.extend();
 		var instance = new SubSub();
 		Assert(instance instanceof Sub && instance instanceof Uber,'extend didnt work');
+		Assert(instance.a === 'a','extend didnt work');
 	},
 
 	// extends
