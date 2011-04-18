@@ -11,38 +11,38 @@ var suite = new Suite({
 	tearDown : function () {
 	},
 
-	// extend
-	'extend creates a sub class' : function () {
+	// subclass
+	'subclass creates a sub class' : function () {
 		var Uber = function () {
 		};
-		var Sub = Uber.extend();
-		Assert((new Sub()) instanceof Uber,'extend didnt work');
+		var Sub = Uber.subclass();
+		Assert((new Sub()) instanceof Uber,'subclass didnt work');
 	},
 
-	// extend extend
-	'extend works on a subclass' : function () {
+	// subclass subclass
+	'subclass works on a subclass' : function () {
 		var Uber = function () {
 			this.a = 'a';
 		};
-		var Sub = Uber.extend();
-		var SubSub = Sub.extend();
+		var Sub = Uber.subclass();
+		var SubSub = Sub.subclass();
 		var instance = new SubSub();
-		Assert(instance instanceof Sub && instance instanceof Uber,'extend didnt work');
-		Assert(instance.a === 'a','extend didnt work');
+		Assert(instance instanceof Sub && instance instanceof Uber,'subclass didnt work');
+		Assert(instance.a === 'a','subclass didnt work');
 	},
 
-	// extends
-	'extends forces an existing class to inherit from an uber class. existing methods are preserved' : function () {
+	// subclasses
+	'subclasses forces an existing class to inherit from an uber class. existing methods are preserved' : function () {
 		var Sub = function () {
 		};
 		Sub.prototype.derp = function () {
 		};
 		var Uber = function () {
 		};
-		Sub.extends(Uber);
+		Sub.subclasses(Uber);
 		var instance = new Sub();
-		Assert(instance instanceof Uber,'extends didnt work');
-		Assert('derp' in instance,'extends didnt preserve existing prototype');
+		Assert(instance instanceof Uber,'subclasses didnt work');
+		Assert('derp' in instance,'subclasses didnt preserve existing prototype');
 	},
 
 	// uber on first uber
@@ -53,7 +53,7 @@ var suite = new Suite({
 		Uber.prototype.derp = function () {
 			return this.a;
 		};
-		var Sub = Uber.extend({
+		var Sub = Uber.subclass({
 			b : 'b',
 			derp : function () {
 				return this.b + this.uber(arguments);;
@@ -81,8 +81,8 @@ var suite = new Suite({
 				return this.b + this.uber(arguments);
 			}
 		};
-		Sub.extends(Uber);
-		var SubSub = Sub.extend({
+		Sub.subclasses(Uber);
+		var SubSub = Sub.subclass({
 			c : 'c',
 			derp : function () {
 				return this.c + this.uber(arguments);
@@ -101,8 +101,8 @@ var suite = new Suite({
 		Uber.prototype.derp = function () {
 			return this.a;
 		};
-		var Sub = Uber.extend();
-		var SubSub = Sub.extend({
+		var Sub = Uber.subclass();
+		var SubSub = Sub.subclass({
 			b : 'b',
 			derp : function () {
 				return this.b + this.uber(arguments);
@@ -121,7 +121,7 @@ var suite = new Suite({
 		var Sub = function () {
 			this.uber(arguments);
 		};
-		Sub.extends(Uber);
+		Sub.subclasses(Uber);
 		var instance = new Sub();
 		Assert(instance.a === 'a','no');
 	},
@@ -136,7 +136,7 @@ var suite = new Suite({
 		Uber.prototype.derp = uberDerp;
 		var Sub = function () {
 		};
-		Sub.extends(Uber);
+		Sub.subclasses(Uber);
 		Sub.prototype.derp = function () {
 			return this.getUber(arguments);;
 		};
@@ -149,7 +149,7 @@ var suite = new Suite({
 		var subConstructorRan = false;
 		var Uber = function () {
 		};
-		var Sub = Uber.extend({
+		var Sub = Uber.subclass({
 			constructor : function () {
 				subConstructorRan = true;
 				Assert(this.getUber(arguments) === Uber,'no');
@@ -173,8 +173,6 @@ var suite = new Suite({
 		Assert(instance instanceof Uber,'no');
 		Assert(instance.derp() === 'ab','no');
 	}
-
-
 });
 
 suite.run();

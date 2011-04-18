@@ -1,52 +1,46 @@
 (function () {
-	// get a super method by its sub method
-	// argsOrMethod is a reference to arguments or arguments.callee
-	// requires prototype's to have a reference to their constructor and a reference to themselves as .prototype
-	// use Function.prototype.extend and Function.prototype.extends
-	var getUber = function (argsOrMethod) {
-
-		// get the sub method that we are interested in. either it was passed, or arguments was passed in which case use arguments.callee
-		var method = typeof argsOrMethod === 'function' ? argsOrMethod : argsOrMethod.callee;
-
-		// recurse the prototypal chain looking for the method that was called. return the next property in the chain by the same property name
-		return (function (prototype) {
-
-			// for each property in the prototype
-			for (var methodName in prototype) {
-
-				// if the property exists on this prototype, and is the method we are looking for
-				if (prototype[methodName] === method && prototype.hasOwnProperty(methodName)) {
-
-					// delete the circular reference from the prototype
-					delete prototype.prototype;
-
-					// get a reference to the next property in the prototypal chain by the same property name
-					// prototype.prototype points to the next prototype in the chain because we just deleted the current prototype's circular reference, thereby revealing its internal prototype's circular reference
-					var superMethod = prototype.prototype[methodName];
-
-					// restore the circular reference
-					prototype.prototype = prototype;
-
-					// return whatever we found
-					return superMethod;
-				}
+	// gets the next prototype up the chain
+	var getNextPrototype = function (prototype) {
+		var constructor = prototype.constructor;
+		delete prototype.constructor;
+		var nextPrototype = prototype.constructor.prototype;
+		prototype.constructor = constructor;
+		return nextPrototype;
+	},
+	getPropertyName = function (obj,property) {
+		for (var propertyName in obj) {
+			if (obj[propertyName] === property) {
+				return propertyName;
 			}
-
-			// we didnt find what we were looking for
-
-			// delete this prototype's circular reference
-			delete prototype.prototype;
-
-			// get its parent prototype by its parents prototypes now revealed circular reference
-			var nextPrototype = prototype.prototype;
-
-			// restore the circular reference
-			prototype.prototype = prototype;
-
-			// if there was another prototype in our circular reference chain, call this method on that one, otherwise, return undefined
-			return nextPrototype ? arguments.callee(nextPrototype) : undefined;
-
-		})(this.prototype); // call the anon fn with this.prototype
+		}
+		return undefined;
+	},
+	// get a super method by its sub method
+	// pass arguments
+	// requires prototype's to have a reference to their constructor
+	// use Function.prototype.subclass and Function.prototype.subclasses
+	getUber = function (args) {
+		var method = args.callee,
+			prototype = this.constructor.prototype,
+			methodName = getPropertyName(this,method),
+			constructor,
+			uberMethod;
+		
+		for (; prototype !== Object; prototype = getNextPrototype(prototype)) {
+			if (typeof methodName === 'undefined') {
+				methodName = getPropertyName(prototype,method);
+			}
+			if (prototype.hasOwnProperty(methodName)) {
+				delete prototype[methodName];
+				uberMethod = prototype[methodName];
+				prototype[methodName] = method;
+				if (typeof uberMethod === 'undefined') {
+					throw new Error('no uber method found');
+				}
+				return uberMethod;
+			}
+		}
+		throw new Error('method not found');
 	},
 
 	// pass arguments and optionally an array of args
@@ -56,7 +50,7 @@
 		return this.getUber(args).apply(this,optionalArgs || args);
 	},
 
-	// used by .extend and .extends
+	// used by .subclass and .subclasses
 	setupInheritance = function (superclass,constructor,oldPrototype) {
 
 		// create an empty constructor, used to get an object that inherits from the superclass proto
@@ -68,7 +62,7 @@
 		var prototype = new C();
 
 		// for any properties on oldPrototype, copy them to new prototype
-		// this will occur if the implementor added properties to the prototype before calling an extend method
+		// this will occur if the implementor added properties to the prototype before calling an subclass method
 		for (var property in oldPrototype) {
 			// only copy properties that are dircetly on the oldPrototype.
 			// any old inheritance will be lost.
@@ -80,16 +74,12 @@
 		// set the prototype on the constructor
 		constructor.prototype = prototype;
 
-		// give the prototype a circular reference
-		// this is used to transverse the prototypal chain
-		prototype.prototype = prototype;
-
 		// give the prototype an explicit reference to its constructor
-		// this is used to identify constructors for the sake of allowing uber constructors
+		// this is used to transverse the prototypal chain
 		prototype.constructor = constructor;
 
 		// if uber isnt in the prototype chain, add it now
-		if (!prototype.uber) {
+		if (!('uber' in prototype)) {
 
 			// add uber and get uber
 			// this only needs to exist once in the chain
@@ -100,23 +90,20 @@
 
 			// since this class's class has to super class, these werent set for it yet
 
-			// set the superclass's prototype's constructor so that we can call it with this.uber from the constructor function
+			// need this to be set so that we can traverse stuff
 			superclass.prototype.constructor = superclass;
-
-			// set the superclass's prototype's circular reference so that we can look for uber methods on it in our prototype transversing routine
-			superclass.prototype.prototype = superclass.prototype;
 		}
 
 		// return the constructor
 		return constructor;
 	};
 
-	// SubClass.extends(SuperClass); // setup a dynamic inheritance
-	Function.prototype.extends = function (superclass) {
+	// SubClass.subclasses(SuperClass); // setup a dynamic inheritance
+	Function.prototype.subclasses = function (superclass) {
 		return setupInheritance(superclass,this,this.prototype);
 	};
 
-	// 	var SubClass = SuperClass.extend({ // returns a constructor with a prototype formed from the object you pass. if your object has a constructor property, that will be returned.
+	// 	var SubClass = SuperClass.subclass({ // returns a constructor with a prototype formed from the object you pass. if your object has a constructor property, that will be returned.
 	//  	// optional
 	// 		constructor : function () {
 	//			...
@@ -125,7 +112,7 @@
 	// 		},
 	// 		...
 	//	});
-	Function.prototype.extend = function (properties) {
+	Function.prototype.subclass = function (properties) {
 		// if the properties object didnt define a constructor, use a generic one that just calls its uber
 		var constructor = properties && properties.hasOwnProperty('constructor') ? properties.constructor : function () {
 			this.uber(arguments);
