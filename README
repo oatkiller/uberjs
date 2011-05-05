@@ -1,0 +1,106 @@
+What?
+====
+
+Use uberjs to imitate classes in JavaScript.
+
+Get started
+==========
+
+Include uber.js
+
+Create a class in plain JavaScript
+<pre>
+<code>
+
+// Create a 'class' using plain JavaScript
+var Widget = function (id) {
+	this.id = id;
+};
+Widget.prototype = {
+	set : function (value) {
+		this.value = value;
+	},
+	get : function () {
+		return this.value;
+	},
+	toString : function () {
+		return 'Widget: ' + this.id;
+	}
+};
+
+// Or create a 'class' using the .klass shortcut
+var Widget = Function.klass({
+	constructor : function (id) {
+		this.id = id;
+	},
+	set : function (value) {
+		this.value = value;
+	},
+	get : function () {
+		return this.value;
+	},
+	toString : function () {
+		return 'Widget: ' + this.id;
+	}
+});
+
+// make a subclass with .subclass
+var ValidatingWidget = Widget.subclass({
+	validator : function () {
+		throw new Error('must be overridden');
+	},
+	set : function (value) {
+		if (this.validator(value)) {
+			// call the overridden method with this.uber(arguments);
+			this.uber(arguments);
+		} else {
+			throw new Error('validation failed');
+		}
+	}
+});
+
+// .subclass works on subclasses
+var NumberWidget = ValidatingWidget.subclass({
+	validator : function (value) {
+		// must be a number and not Not a Number
+		return typeof value === 'number' && !isNaN(value);
+	}
+});
+
+// You can set inheritance on an existing class using .subclasses
+// how you create a class is not important
+var StringWidget = function () {};
+StringWidget.prototype.validator = function (value) {
+	return typeof value === 'string';
+};
+// .subclasses takes a super class
+StringWidget.subclasses(ValidatingWidget);
+
+// this.uber can take a second optional array of arguments
+var Person = Function.klass({
+	setInfo : function (name,age) {
+		this.name = name;
+		this.age = age;
+	}
+});
+
+// call the overridden method with name, age, instead of the arguments that this was called with
+var Employee = Person.subclass({
+	setInfo : function (title,name,age) {
+		this.title = title;
+
+		this.uber(arguments,[name,age]);
+	}
+});
+
+// getUber can be used to get the overridden method
+var Employee = Person.subclass({
+	setInfo : function (title,name,age) {
+		this.title = title;
+
+		this.getUber(arguments).call(this,name,age);
+	}
+});
+
+</code>
+</pre>
