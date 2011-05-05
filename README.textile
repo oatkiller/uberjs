@@ -1,10 +1,48 @@
-What?
-====
+h1. What?
 
 Use uberjs to imitate classes in JavaScript.
 
-Get started
-==========
+h1. Methods
+
+h2. .subclass
+
+@.subclass(classConfig)@
+
+*classConfig* - {Object} - An object with any properties the subclass should have
+
+*If .constructor is provided, it will be used, if not, a default constructor will be provided*
+
+h2. .subclasses
+
+@.subclasses(constructor)@
+
+*constructor* - {Function} - A constructor for a class that you would like the context Class to inherit from
+
+h2. Function.klass
+
+@Function.klass(classConfig)@
+
+*classConfig - Same as with .subclass
+
+Creates a new class from a config
+
+h2. .uber
+
+@.uber(arguments,[arg1,arg2]);@
+
+*arguments* - {Arguments} - Takes the magic arguments object
+*[]* - An *optional* array of arguments to call the uber method with.
+
+*If the second argument is not used, the same arguments as the sub method was called with will be passed to the super method*
+
+
+h2. .getUber
+
+@.getUber(arguments)@
+
+Get a reference to the uber method
+
+h1. Get started
 
 Include uber.js
 
