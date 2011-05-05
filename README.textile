@@ -88,7 +88,6 @@ var Person = Function.klass({
 var Employee = Person.subclass({
 	setInfo : function (title,name,age) {
 		this.title = title;
-
 		this.uber(arguments,[name,age]);
 	}
 });
@@ -97,7 +96,6 @@ var Employee = Person.subclass({
 var Employee = Person.subclass({
 	setInfo : function (title,name,age) {
 		this.title = title;
-
 		this.getUber(arguments).call(this,name,age);
 	}
 });
