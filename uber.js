@@ -7,7 +7,12 @@
 		prototype.constructor = constructor;
 		return nextPrototype;
 	},
-	getPropertyName = function (obj,property) {
+	getPropertyName = function (obj,property) {		
+		// constructor is not iteratable in ie
+		if (obj.constructor === property) {
+			return 'constructor';
+		}
+
 		for (var propertyName in obj) {
 			if (obj[propertyName] === property) {
 				return propertyName;
