@@ -32,10 +32,10 @@
 			uberMethod;
 		
 		for (; prototype !== Object; prototype = getNextPrototype(prototype)) {
-			if (typeof methodName === 'undefined') {
+			if (methodName === undefined) {
 				methodName = getPropertyName(prototype,method);
 			}
-			if (prototype.hasOwnProperty(methodName)) {
+			if (methodName !== undefined && prototype.hasOwnProperty(methodName)) {
 				delete prototype[methodName];
 				uberMethod = prototype[methodName];
 				prototype[methodName] = method;

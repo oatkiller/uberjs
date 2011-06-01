@@ -138,10 +138,43 @@ var suite = new Suite({
 		};
 		Sub.subclasses(Uber);
 		Sub.prototype.derp = function () {
-			return this.getUber(arguments);;
+			return this.getUber(arguments);
 		};
 		var instance = new Sub();
 		Assert(instance.derp() === uberDerp,'no');
+	},
+
+	'getUber works when there is a property called undefined' : function () {
+		var uberUberUberUberCount = 0,
+			uberUberUberCount = 0,
+			uberUberCount = 0,
+			uberCount = 0;
+
+		var UberUberUberUber = Function.klass({
+			herp : function () {
+				uberUberUberUberCount++;
+			}
+		});
+
+		var UberUberUber = UberUberUberUber.subclass({
+			herp : function () {
+				this.uber(arguments);
+				uberUberUberCount++;
+			}
+		});
+
+		var UberUber = UberUberUber.subclass();
+
+		var Uber = UberUber.subclass();
+
+		var Sub = Uber.subclass({
+			undefined : true
+		});
+
+		var sub = new Sub();
+		sub.herp();
+		Assert(uberUberUberUberCount === 1);
+		Assert(uberUberUberCount === 1);
 	},
 
 	// getUber can get a constructor
