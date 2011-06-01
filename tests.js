@@ -192,6 +192,9 @@ var suite = new Suite({
 		Assert(subConstructorRan === true,'noo');
 	},
 
+	'' : function () {
+	},
+
 	// klass works
 	'klass creates a constructor' : function () {
 		var Uber = Function.klass({

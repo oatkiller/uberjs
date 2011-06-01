@@ -39,7 +39,7 @@
 				delete prototype[methodName];
 				uberMethod = prototype[methodName];
 				prototype[methodName] = method;
-				if (typeof uberMethod === 'undefined') {
+				if (uberMethod === undefined) {
 					throw new Error('no uber method found');
 				}
 				return uberMethod;
