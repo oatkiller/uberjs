@@ -1,4 +1,12 @@
-this['git://github.com/oatkiller/testingjs.git']();
+if (typeof require !== 'undefined') {
+	var Testing = require('testing'),
+		Test = Testing.Test,
+		Runner = Testing.Runner,
+		Suite = Testing.Suite,
+		Assert = Testing.Assert;
+} else {
+	this['git://github.com/oatkiller/testingjs.git']();
+}
 
 var runner = new Runner();
 

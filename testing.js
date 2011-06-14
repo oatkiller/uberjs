@@ -163,3 +163,8 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		this.Assert = Assert;
 	}
 };
+
+// for node.js
+if (typeof module !== 'undefined') {
+	this['git://github.com/oatkiller/testingjs.git'](module.exports);
+}

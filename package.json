@@ -1,0 +1,22 @@
+{
+  "author": "Robert Austin <robert@oatlab.com> (https://github.com/oatkiller)",
+  "name": "uber",
+  "description": "A sophisticated and tested inheritance system for JavaScript",
+  "version": "0.1.0",
+  "homepage": "https://github.com/oatkiller/uberjs",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/oatkiller/uberjs.git"
+  },
+  "main": "uber",
+  "engines": {
+    "node": "v0.4.8"
+  },
+	"scripts": {
+		"test": "node tests.js"
+	},
+  "dependencies": {},
+  "devDependencies": {
+		"testing": "https://github.com/oatkiller/testingjs/tarball/master"
+	}
+}

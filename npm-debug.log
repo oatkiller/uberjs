@@ -1,0 +1,50 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'test' ]
+info using npm@1.0.6
+info using node@v0.4.8
+verbose config file /Users/robert/.npmrc
+verbose config file /usr/local/etc/npmrc
+silly testEngine { author: 
+silly testEngine    { name: 'Robert Austin',
+silly testEngine      email: 'robert@oatlab.com',
+silly testEngine      url: 'https://github.com/oatkiller' },
+silly testEngine   name: 'uber',
+silly testEngine   description: 'A sophisticated and tested inheritance system for JavaScript',
+silly testEngine   version: '0.1.0',
+silly testEngine   homepage: 'https://github.com/oatkiller/uberjs',
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/oatkiller/uberjs.git' },
+silly testEngine   main: 'uber',
+silly testEngine   engines: { node: 'v0.4.8' },
+silly testEngine   scripts: { test: 'node tests.js' },
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: { testing: 'https://github.com/oatkiller/testingjs/tarball/master' },
+silly testEngine   _id: 'uber@0.1.0',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.6',
+silly testEngine   _nodeVersion: 'v0.4.8',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/robert/Sites/work/uberjs/package.json
+verbose loadDefaults uber@0.1.0
+verbose run-script [ 'pretest', 'test', 'posttest' ]
+info pretest uber@0.1.0
+info test uber@0.1.0
+verbose unsafe-perm in lifecycle true
+silly exec sh "-c" "node tests.js"
+info uber@0.1.0 Failed to exec test script
+ERR! uber@0.1.0 test: `node tests.js`
+ERR! `sh "-c" "node tests.js"` failed with 1
+ERR! 
+ERR! Failed at the uber@0.1.0 test script.
+ERR! This is most likely a problem with the uber package,
+ERR! not with npm itself.
+ERR! Tell the author that this fails on your system:
+ERR!     node tests.js
+ERR! You can get their info via:
+ERR!     npm owner ls uber
+ERR! There is likely additional logging output above.
+ERR! 
+ERR! System Darwin 10.7.0
+ERR! command "node" "/usr/local/bin/npm" "test"
+verbose exit [ 1, true ]
