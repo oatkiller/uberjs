@@ -15,8 +15,8 @@
 	"scripts": {
 		"test": "node tests.js"
 	},
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
 		"testing": "https://github.com/oatkiller/testingjs/tarball/master"
-	}
+	},
+  "devDependencies": {}
 }

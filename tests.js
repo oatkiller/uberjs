@@ -216,7 +216,7 @@ var suite = new Suite({
 	},
 
 	// documentation examples
-	'derp' : function () {
+	'documentation test' : function () {
 		// Create a 'class' using plain JavaScript
 		var Widget = function (id) {
 			this.id = id;
