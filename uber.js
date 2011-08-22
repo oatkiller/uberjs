@@ -1,5 +1,10 @@
 (function () {
 	// gets the next prototype up the chain
+	/**
+	 * @private
+	 * @param {Object} prototype
+	 * @returns {Object} prototype's prototype
+	 */
 	var getNextPrototype = function (prototype) {
 		var constructor = prototype.constructor;
 		delete prototype.constructor;
@@ -7,6 +12,12 @@
 		prototype.constructor = constructor;
 		return nextPrototype;
 	},
+	/**
+	 * @private
+	 * @param {Object} obj An object
+	 * @param {Object} property Anything that should be referenced as a property of obj
+	 * @returns {String} the property name that references property on obj
+	 */
 	getPropertyName = function (obj,property) {		
 		// constructor is not iteratable in ie
 		if (obj.constructor === property) {
@@ -27,24 +38,38 @@
 	getUber = function (args) {
 		var method = args.callee,
 			prototype = this.constructor.prototype,
+			// check if the called method is a property of this
 			methodName = getPropertyName(this,method),
 			constructor,
 			uberMethod;
 		
 		for (; prototype !== Object; prototype = getNextPrototype(prototype)) {
+			// if the called method was not an instance property,
 			if (methodName === undefined) {
+				// check if the called method is a property of this prototype
 				methodName = getPropertyName(prototype,method);
 			}
+			// if the method belongs to this prototype
 			if (methodName !== undefined && prototype.hasOwnProperty(methodName)) {
+				// dereference the called method
 				delete prototype[methodName];
+
+				// check for its uber
 				uberMethod = prototype[methodName];
+
+				// reference the called method again
 				prototype[methodName] = method;
+
+				// if no uber was found
 				if (uberMethod === undefined) {
 					throw new Error('no uber method found');
 				}
+
+				// return the found uber
 				return uberMethod;
 			}
 		}
+		// if the called method itself could not be found on this
 		throw new Error('method not found');
 	},
 
@@ -81,6 +106,7 @@
 
 		// give the prototype an explicit reference to its constructor
 		// this is used to transverse the prototypal chain
+		// prototypes in javascript have a reference to their constructor by default, so maintain it
 		prototype.constructor = constructor;
 
 		// if uber isnt in the prototype chain, add it now
@@ -96,6 +122,7 @@
 			// since this class's class has to super class, these werent set for it yet
 
 			// need this to be set so that we can traverse stuff
+			// TODO, assert that this is not needed before removing it
 			superclass.prototype.constructor = superclass;
 		}
 
